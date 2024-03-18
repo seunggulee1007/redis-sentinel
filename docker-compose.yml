@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  redis-master:
+    image: redis:6.0.16
+    container_name: redis-master
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  redis-slave:
+    image: redis:6.0.16
+    container_name: redis-slave
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes --slaveof redis-master 6379
+
+  sentinel1:
+    image: redis:6.0.16
+    ports:
+      - "26379:26379"
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+
+  sentinel2:
+    image: redis:6.0.16
+    ports:
+      - "26380:26379"
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+
+  sentinel3:
+    image: redis:6.0.16
+    ports:
+      - "26381:26379"
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
